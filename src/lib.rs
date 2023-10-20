@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-pub mod camera_nokhwa;
+pub mod camera_opencv;
 pub mod send_frame;
 
 pub type SharedState = Arc<RwLock<AppState>>;

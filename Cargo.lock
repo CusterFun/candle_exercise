@@ -173,11 +173,11 @@ checksum = "a2bd12c1caf447e69cd4528f47f94d203fd2582878ecb9e9465484c4148a8223"
 
 [[package]]
 name = "cc"
-version = "1.0.83"
+version = "1.0.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1174fb0b6ec23863f8b971027804a42614e347eafb0a95bf0b12cdae21fc4d0"
+checksum = "50d30906286121d95be3d479533b458f87493b30a4b5f79a607db8f5d11aa91f"
 dependencies = [
- "libc",
+ "jobserver",
 ]
 
 [[package]]
@@ -185,6 +185,26 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "clang"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84c044c781163c001b913cd018fc95a628c50d0d2dfea8bca77dad71edb16e37"
+dependencies = [
+ "clang-sys",
+ "libc",
+]
+
+[[package]]
+name = "clang-sys"
+version = "1.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c688fc74432808e3eb684cae8830a86be1d66a2bd58e1f248ed0960a590baf6f"
+dependencies = [
+ "glob",
+ "libc",
+]
 
 [[package]]
 name = "cpufeatures"
@@ -222,12 +242,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dunce"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56ce8c6da7551ec6c462cbaf3bfbc75131ebbfa1c944aeaa9dab51ca1c5f0c3b"
+
+[[package]]
 name = "exercise_screen"
 version = "0.1.0"
 dependencies = [
  "axum",
  "axum-extra",
  "futures",
+ "opencv",
  "tokio",
  "tokio-tungstenite",
  "tower",
@@ -368,6 +395,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fb8d784f27acf97159b40fc4db5ecd8aa23b9ad5ef69cdd136d3bc80665f0c0"
 
 [[package]]
+name = "glob"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
+
+[[package]]
 name = "headers"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -477,6 +510,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
+name = "jobserver"
+version = "0.1.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "936cfd212a0155903bcbc060e316fb6cc7cbf2e1907329391ebadc1fe0ce77c2"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -572,6 +614,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-traits"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39e3200413f237f41ab11ad6d161bc7239c84dcb631773ccd7de3dfe4b5c267c"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -595,6 +646,39 @@ name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
+
+[[package]]
+name = "opencv"
+version = "0.85.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e07271acf89f1dbe3aa1d2f8f905ed5742a5b03117d73b583ba4f4157e77dd91"
+dependencies = [
+ "cc",
+ "dunce",
+ "jobserver",
+ "libc",
+ "num-traits",
+ "once_cell",
+ "opencv-binding-generator",
+ "pkg-config",
+ "semver",
+ "shlex",
+ "vcpkg",
+]
+
+[[package]]
+name = "opencv-binding-generator"
+version = "0.75.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64d0632ad1ed848844a55c0cd622c7cfae4f36dee924eeabdf4119c6a7bd479c"
+dependencies = [
+ "clang",
+ "clang-sys",
+ "dunce",
+ "once_cell",
+ "percent-encoding",
+ "regex",
+]
 
 [[package]]
 name = "overload"
@@ -662,6 +746,12 @@ name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
+
+[[package]]
+name = "pkg-config"
+version = "0.3.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
 
 [[package]]
 name = "ppv-lite86"
@@ -795,6 +885,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
+name = "semver"
+version = "1.0.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "836fa6a3e1e547f9a2c4040802ec865b5d85f4014efe00555d7090a3dcaa1090"
+
+[[package]]
 name = "serde"
 version = "1.0.189"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -866,6 +962,12 @@ checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
 ]
+
+[[package]]
+name = "shlex"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7cee0529a6d40f580e7a5e6c495c8fbfe21b7b52795ed4bb5e62cdf92bc6380"
 
 [[package]]
 name = "signal-hook-registry"
@@ -1226,6 +1328,12 @@ name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
+
+[[package]]
+name = "vcpkg"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "version_check"
