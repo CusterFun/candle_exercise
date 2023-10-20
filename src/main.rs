@@ -1,10 +1,11 @@
 use std::net::SocketAddr;
 
+use axum::routing::post;
 use axum::{routing::get, Router};
-use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use exercise_screen::send_frame::ws_handler;
+use exercise_screen::app_state::SharedState;
+use exercise_screen::send_frame::{start_camera, stop_camera, ws_handler};
 
 #[tokio::main]
 async fn main() {
@@ -17,9 +18,13 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let app = Router::new().route("/ws", get(ws_handler)).layer(
-        TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::default().include_headers(true)),
-    );
+    let shared_state = SharedState::default();
+
+    let app = Router::new()
+        .route("/start_camera", post(start_camera))
+        .route("/stop_camera", post(stop_camera))
+        .route("/ws", get(ws_handler))
+        .with_state(std::sync::Arc::clone(&shared_state));
 
     // run it with hyer
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
