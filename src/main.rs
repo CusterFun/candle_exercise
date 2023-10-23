@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 
 use axum::routing::post;
 use axum::{routing::get, Router};
+use tokio::signal::{unix, unix::SignalKind};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use exercise_screen::app_state::SharedState;
@@ -45,7 +46,7 @@ async fn shutdown_signal() {
 
     #[cfg(unix)]
     let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
+        unix::signal(SignalKind::terminate())
             .expect("failed to install signal handler")
             .recv()
             .await;
