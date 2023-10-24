@@ -16,3 +16,15 @@ tower = { version = "0.4", features = ["util"] }
 tower-http = { version = "0.4", features = ["fs", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+candle-core = "0.3.0"
+candle-nn = "0.3.0"
+candle-transformers = "0.3.0"
+image = { version="0.24.7", default-features = false, features = ["jpeg", "png"] }
+clap = { version = "4.2.4", features = ["derive"] }
+anyhow = { version = "1", features = ["backtrace"] }
+rusttype = { version = "0.9", default-features = false }
+tokenizers = { version = "0.14.1", default-features = false, features = ["onig"] }
+hf-hub = "0.3.0"
+imageproc = { version = "0.23.0", default-features = false }
+tracing-chrome = "0.7.1"
