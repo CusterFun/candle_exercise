@@ -28,3 +28,4 @@ tokenizers = { version = "0.14.1", default-features = false, features = ["onig"]
 hf-hub = "0.3.0"
 imageproc = { version = "0.23.0", default-features = false }
 tracing-chrome = "0.7.1"
+lazy_static = "1.4.0"

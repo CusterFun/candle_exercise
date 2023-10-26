@@ -2,13 +2,15 @@ use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::IntoResponse,
 };
+use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 // 允许提取连接用户的IP
 use crate::app_state::SharedState;
+use crate::process_frame::process_frame_with_candle;
 use axum::extract::State;
 use axum::http::StatusCode;
+use opencv::videoio;
 use opencv::videoio::{VideoCapture, VideoCaptureTrait};
-use opencv::{imgcodecs, videoio};
 
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
@@ -20,6 +22,7 @@ pub async fn ws_handler(
         None => (StatusCode::INTERNAL_SERVER_ERROR, "摄像头未打开").into_response(),
     }
 }
+
 async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) {
     loop {
         let frame_data = {
@@ -27,9 +30,18 @@ async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) 
             let mut frame = opencv::core::Mat::default();
             match locked_camera.read(&mut frame) {
                 Ok(_) => {
-                    let mut buf = Default::default();
-                    imgcodecs::imencode(".png", &frame, &mut buf, &Default::default()).ok();
-                    Some(Vec::from(buf))
+                    // let mut buf = Default::default();
+                    // imgcodecs::imencode(".jpeg", &frame, &mut buf, &Default::default()).ok();
+                    // Some(Vec::from(buf))
+                    // 使用 candle 处理图像
+                    let mut buf = Vec::new();
+                    let mut cursor = Cursor::new(&mut buf);
+                    let processed_frame =
+                        process_frame_with_candle(&frame, None, None, None).unwrap();
+                    processed_frame
+                        .write_to(&mut cursor, image::ImageOutputFormat::Png)
+                        .unwrap();
+                    Some(buf)
                 }
                 Err(e) => {
                     tracing::error!("读取图片失败: {}", e);
@@ -57,7 +69,7 @@ pub async fn start_camera(State(state): State<SharedState>) -> String {
     let opt_camera = app_state.camera.take();
 
     if opt_camera.is_none() {
-        let camera = VideoCapture::new(1, videoio::CAP_ANY);
+        let camera = VideoCapture::new(0, videoio::CAP_ANY);
         match camera {
             Ok(camera) => {
                 let shared_camera = Arc::new(Mutex::new(camera));
@@ -80,7 +92,12 @@ pub async fn stop_camera(State(state): State<SharedState>) -> String {
     let opt_camera = app_state.camera.take();
     match opt_camera {
         Some(camera) => {
-            let mut locked_camera = camera.lock().unwrap();
+            let mut locked_camera = match camera.lock() {
+                Ok(camera) => camera,
+                Err(e) => {
+                    return format!("锁定相机失败: {}", e);
+                }
+            };
             match locked_camera.release() {
                 Ok(_) => "相机关闭成功".to_string(),
                 Err(e) => {

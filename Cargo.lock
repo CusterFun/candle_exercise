@@ -799,6 +799,7 @@ dependencies = [
  "hf-hub",
  "image",
  "imageproc",
+ "lazy_static",
  "opencv",
  "rusttype",
  "tokenizers",
