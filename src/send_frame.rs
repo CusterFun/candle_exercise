@@ -9,6 +9,7 @@ use crate::app_state::SharedState;
 use crate::process_frame::process_frame_with_candle;
 use axum::extract::State;
 use axum::http::StatusCode;
+use opencv::core::MatTraitConst;
 use opencv::videoio;
 use opencv::videoio::{VideoCapture, VideoCaptureTrait};
 
@@ -34,14 +35,27 @@ async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) 
                     // imgcodecs::imencode(".jpeg", &frame, &mut buf, &Default::default()).ok();
                     // Some(Vec::from(buf))
                     // 使用 candle 处理图像
-                    let mut buf = Vec::new();
-                    let mut cursor = Cursor::new(&mut buf);
-                    let processed_frame =
-                        process_frame_with_candle(&frame, None, None, None).unwrap();
-                    processed_frame
-                        .write_to(&mut cursor, image::ImageOutputFormat::Png)
-                        .unwrap();
-                    Some(buf)
+                    let size = match frame.size() {
+                        Ok(size) => size,
+                        Err(e) => {
+                            tracing::error!("读取图片失败: {}", e);
+                            break;
+                        }
+                    };
+                    if size.width > 0 {
+                        let mut buf = Vec::new();
+                        let mut cursor = Cursor::new(&mut buf);
+                        let processed_frame =
+                            process_frame_with_candle(&frame, None, None, None).unwrap();
+                        let processed_frame = processed_frame.to_rgb8();
+                        processed_frame
+                            .write_to(&mut cursor, image::ImageOutputFormat::Jpeg(90))
+                            .unwrap();
+                        Some(buf)
+                    } else {
+                        tracing::error!("读取图片结束");
+                        break;
+                    }
                 }
                 Err(e) => {
                     tracing::error!("读取图片失败: {}", e);

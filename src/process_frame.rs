@@ -1,10 +1,9 @@
 use crate::app_state::SINGLETON_INSTANCE;
 use crate::pose::model::YoloV8Pose;
 use candle_core::{DType, Device, Module, Tensor};
-use image::{DynamicImage, ImageBuffer, Luma, Rgb};
+use image::{DynamicImage, ImageBuffer, Luma};
 use opencv::core::{Mat, MatTraitConst, MatTraitConstManual};
 use opencv::imgproc;
-use std::time::SystemTime;
 
 use crate::pose::yolov8::Task;
 
@@ -14,6 +13,9 @@ pub fn process_frame_with_candle(
     nms_threshold: Option<f32>,
     legend_size: Option<u32>,
 ) -> anyhow::Result<DynamicImage> {
+    if mat.empty() {
+        return Err(anyhow::anyhow!("读取图片失败"));
+    }
     let instance = SINGLETON_INSTANCE.lock().unwrap();
     let model: &YoloV8Pose = match instance.pose_model.as_ref() {
         Some(model) => model,
@@ -62,7 +64,7 @@ pub fn process_frame_with_candle(
     let image_t = (image_t.unsqueeze(0)?.to_dtype(DType::F32)? * (1. / 255.))?;
     let predictions = model.forward(&image_t)?.squeeze(0)?;
     tracing::debug!("generated predictions {predictions:?}");
-    let image_t = YoloV8Pose::report(
+    let image_t: DynamicImage = YoloV8Pose::report(
         &predictions,
         original_image,
         width,
@@ -71,8 +73,5 @@ pub fn process_frame_with_candle(
         nms_threshold.unwrap_or(0.45),
         legend_size.unwrap_or(14),
     )?;
-    let image_name = std::path::PathBuf::from(format!("{:?}.jpg", SystemTime::now()));
-    tracing::debug!("writing {image_name:?}");
-    image_t.save(image_name)?;
     Ok(image_t)
 }
