@@ -1,8 +1,9 @@
 use crate::app_state::SINGLETON_INSTANCE;
 use crate::pose::model::YoloV8Pose;
 use candle_core::{DType, Device, Module, Tensor};
-use image::{DynamicImage, ImageBuffer, Rgb};
+use image::{DynamicImage, ImageBuffer, Luma, Rgb};
 use opencv::core::{Mat, MatTraitConst, MatTraitConstManual};
+use opencv::imgproc;
 use std::time::SystemTime;
 
 use crate::pose::yolov8::Task;
@@ -21,13 +22,15 @@ pub fn process_frame_with_candle(
         }
     };
     // 将opencv的Mat转换为image::DynamicImage
-    let img: ImageBuffer<Rgb<u8>, Vec<u8>> = ImageBuffer::from_raw(
-        mat.cols() as u32,
-        mat.rows() as u32,
-        mat.data_typed::<u8>().unwrap().to_vec(),
+    let mut gray_frame = Mat::default();
+    imgproc::cvt_color(&mat, &mut gray_frame, imgproc::COLOR_BGR2GRAY, 0)?;
+    let img: ImageBuffer<Luma<u8>, Vec<u8>> = ImageBuffer::from_raw(
+        gray_frame.cols() as u32,
+        gray_frame.rows() as u32,
+        gray_frame.data_typed::<u8>().unwrap().to_vec(),
     )
-    .unwrap();
-    let original_image = DynamicImage::ImageRgb8(img);
+    .expect("Failed to convert from Mat to DynamicImage");
+    let original_image = DynamicImage::ImageLuma8(img);
     tracing::debug!("start processing frame...");
 
     let (width, height) = {
