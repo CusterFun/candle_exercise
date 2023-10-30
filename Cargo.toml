@@ -16,8 +16,7 @@ tower = { version = "0.4", features = ["util"] }
 tower-http = { version = "0.4", features = ["fs", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-candle-core = "0.3.0"
+candle-core = { version = "0.3.0", features = ["mkl", "accelerate", "cudnn", "cuda"] }
 candle-nn = "0.3.0"
 candle-transformers = "0.3.0"
 image = { version="0.24.7", default-features = false, features = ["jpeg", "png"] }

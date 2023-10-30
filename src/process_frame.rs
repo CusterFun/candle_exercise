@@ -1,3 +1,9 @@
+#[cfg(feature = "mkl")]
+extern crate intel_mkl_src;
+
+#[cfg(feature = "accelerate")]
+extern crate accelerate_src;
+
 use crate::app_state::SINGLETON_INSTANCE;
 use crate::pose::model::YoloV8Pose;
 use candle_core::{DType, Device, Module, Tensor};
@@ -9,6 +15,7 @@ use crate::pose::yolov8::Task;
 
 pub fn process_frame_with_candle(
     mat: &Mat,
+    device: &Device,
     confidence_threshold: Option<f32>,
     nms_threshold: Option<f32>,
     legend_size: Option<u32>,
@@ -57,7 +64,7 @@ pub fn process_frame_with_candle(
         Tensor::from_vec(
             data,
             (img.height() as usize, img.width() as usize, 3),
-            &Device::Cpu,
+            device,
         )?
         .permute((2, 0, 1))?
     };

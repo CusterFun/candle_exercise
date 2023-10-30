@@ -25,9 +25,9 @@ impl Singleton {
         // Create the model and load the weights from the file.
         let multiples = Multiples::s();
         let model = std::path::PathBuf::from("yolov8s-pose.safetensors");
-        let vb = match unsafe {
-            VarBuilder::from_mmaped_safetensors(&[model], DType::F32, &Device::Cpu)
-        } {
+        let device = crate::pose::utils::device(false)?;
+        let vb = match unsafe { VarBuilder::from_mmaped_safetensors(&[model], DType::F32, &device) }
+        {
             Ok(vb) => vb,
             Err(e) => {
                 tracing::error!("加载模型失败: {}", e);

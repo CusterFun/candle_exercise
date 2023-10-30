@@ -29,6 +29,7 @@ async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) 
         let frame_data = {
             let mut locked_camera = camera.lock().unwrap();
             let mut frame = opencv::core::Mat::default();
+            let device = crate::pose::utils::device(false)?;
             match locked_camera.read(&mut frame) {
                 Ok(_) => {
                     // let mut buf = Default::default();
@@ -46,7 +47,7 @@ async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) 
                         let mut buf = Vec::new();
                         let mut cursor = Cursor::new(&mut buf);
                         let processed_frame =
-                            process_frame_with_candle(&frame, None, None, None).unwrap();
+                            process_frame_with_candle(&frame, &device, None, None, None).unwrap();
                         let processed_frame = processed_frame.to_rgb8();
                         processed_frame
                             .write_to(&mut cursor, image::ImageOutputFormat::Jpeg(90))
