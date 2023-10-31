@@ -29,7 +29,13 @@ async fn handle_socket(mut socket: WebSocket, camera: Arc<Mutex<VideoCapture>>) 
         let frame_data = {
             let mut locked_camera = camera.lock().unwrap();
             let mut frame = opencv::core::Mat::default();
-            let device = crate::pose::utils::device(false)?;
+            let device = match crate::pose::utils::device(false) {
+                Ok(device) => device,
+                Err(e) => {
+                    tracing::error!("加载模型失败: {}", e);
+                    break;
+                }
+            };
             match locked_camera.read(&mut frame) {
                 Ok(_) => {
                     // let mut buf = Default::default();

@@ -1,5 +1,5 @@
 use crate::pose::model::{Multiples, YoloV8Pose};
-use candle_core::{DType, Device};
+use candle_core::DType;
 use candle_nn::VarBuilder;
 use lazy_static::lazy_static;
 use opencv::videoio::VideoCapture;
@@ -25,7 +25,13 @@ impl Singleton {
         // Create the model and load the weights from the file.
         let multiples = Multiples::s();
         let model = std::path::PathBuf::from("yolov8s-pose.safetensors");
-        let device = crate::pose::utils::device(false)?;
+        let device = match crate::pose::utils::device(false) {
+            Ok(device) => device,
+            Err(e) => {
+                tracing::error!("加载模型失败: {}", e);
+                return singleton;
+            }
+        };
         let vb = match unsafe { VarBuilder::from_mmaped_safetensors(&[model], DType::F32, &device) }
         {
             Ok(vb) => vb,
