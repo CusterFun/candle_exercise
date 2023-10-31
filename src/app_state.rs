@@ -23,8 +23,8 @@ impl Singleton {
     fn default() -> Self {
         let mut singleton = Self { pose_model: None };
         // Create the model and load the weights from the file.
-        let multiples = Multiples::s();
-        let model = std::path::PathBuf::from("yolov8s-pose.safetensors");
+        let multiples = Multiples::n();
+        let model = std::path::PathBuf::from("yolov8n-pose.safetensors");
         let device = match crate::pose::utils::device(false) {
             Ok(device) => device,
             Err(e) => {

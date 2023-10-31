@@ -2,8 +2,8 @@ use std::net::SocketAddr;
 
 use axum::routing::post;
 use axum::{routing::get, Router};
-use tower_http::trace::TraceLayer;
 // use tokio::signal::{unix, unix::SignalKind};
+use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use exercise_screen::app_state::SharedState;

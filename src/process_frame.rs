@@ -20,6 +20,8 @@ pub fn process_frame_with_candle(
     nms_threshold: Option<f32>,
     legend_size: Option<u32>,
 ) -> anyhow::Result<DynamicImage> {
+    // 创建一个新的 Instant，这将标记当前时间点
+    let start = std::time::Instant::now();
     if mat.empty() {
         return Err(anyhow::anyhow!("读取图片失败"));
     }
@@ -80,5 +82,9 @@ pub fn process_frame_with_candle(
         nms_threshold.unwrap_or(0.45),
         legend_size.unwrap_or(14),
     )?;
+    // 获取从 Instant 创建到现在为止的经过时间
+    let duration = start.elapsed();
+    // 打印出经过的时间
+    tracing::debug!("推理计算耗时{:?}", duration);
     Ok(image_t)
 }
